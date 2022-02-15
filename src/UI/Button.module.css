@@ -1,0 +1,25 @@
+.button {
+    font-size: 1.6rem;
+    font-family: inherit;
+    color: #fff;
+    padding: .5rem 2rem;
+    border-radius: 5px;
+    border: none;
+    background-color: var(--color-primary);
+    cursor: pointer;
+    transition: background-color .3s ease;
+}
+
+.button:hover {
+    background-color: var(--color-primary--hover);
+}
+
+.button--alt {
+    background-color: #fff;
+    border: 2px solid var(--color-grey-300);
+    color:var(--color-grey-900);
+}
+
+.button--alt:hover{
+    background-color: var(--color-grey-100);
+}

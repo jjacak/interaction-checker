@@ -1,0 +1,28 @@
+.added-drugs{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4rem;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+.drug-list {
+
+    list-style-type: none;
+    width: 100%;
+    font-size: 1.6rem;
+}
+
+
+@media(min-width:576px){
+    .actions {
+        flex-direction: row;
+    }
+}

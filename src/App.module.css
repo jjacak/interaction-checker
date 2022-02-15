@@ -1,0 +1,15 @@
+.wrapper {
+    width: 900px;
+	max-width: 90vw;
+	margin: 3rem auto;
+}
+
+.main {
+	padding: 2rem 1rem;
+}
+
+@media (min-width: 576px) {
+	.main {
+		padding: 4rem 2rem;
+	}
+}

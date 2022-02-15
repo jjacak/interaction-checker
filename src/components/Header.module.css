@@ -1,0 +1,19 @@
+
+
+.header{
+    text-align: center;
+    font-size: 2rem;
+    color: #fff;
+    background-image: linear-gradient(var(--primary-shadow), var(--primary-shadow)), url('../../assets/header-bg-small.jpg');
+    background-size: cover;
+    padding: 2rem 1rem;
+}
+
+
+@media (min-width:576px){
+    .header{
+        font-size: 2.2rem;
+        background-image: linear-gradient(var(--primary-shadow), var(--primary-shadow)), url('../../assets/header-bg-big.jpg');
+        padding: 5rem 2rem;
+    }
+}
