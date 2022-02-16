@@ -1,73 +1,85 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Button from '../UI/Button';
 import AppContext from '../store/appContext';
+import Downshift from 'downshift';
 import classes from './SearchForm.module.css';
 
 let inputSuggestions;
 
 const SearchForm = () => {
 	const [searchInput, setSearchInput] = useState('');
-	const [filteredSuggestions, setFilteredSuggestions] = useState();
 
-	//fetches names of drugs in database from API
+	let items;
+
 	useEffect(() => {
 		const fetchSuggestions = async () => {
 			const response = await fetch(
 				'https://rxnav.nlm.nih.gov/REST/displaynames.json'
 			);
 			const data = await response.json();
-			inputSuggestions = data.displayTermsList.term;
+			const itemsArray = data.displayTermsList.term;
+			items = itemsArray.map((item) => {
+				return { value: item };
+			});
+			console.log(items);
 		};
 		fetchSuggestions();
 	}, []);
-
-	//filters suggestions list
-	useEffect(() => {
-		if (searchInput.length<2) {
-			return;
-		}
-		const filterSuggestions = inputSuggestions.filter((item) =>
-			item.startsWith(searchInput)
-		);
-		setFilteredSuggestions(filterSuggestions);
-
-		return ()=> {setFilteredSuggestions('')}
-	}, [searchInput]);
 
 	const inputChangeHandler = (e) => {
 		setSearchInput(e.target.value);
 	};
 	return (
 		<form className={classes.form}>
-			<div className={classes['form-control']}>
-				<label htmlFor="drug-name" className={classes['form__label']}>
-					Enter drug name:
-				</label>
-				<input
-					type="text"
-					id="drug-name"
-					name="drug-name"
-					list="name-suggestions"
-					className={classes['form__input']}
-					onChange={inputChangeHandler}
-					value={searchInput}
-					autoComplete="off"
-				></input>
-				<datalist id="name-suggestions" className={classes['form__datalist']}>
-					{/* <option value="TEST"></option>
-                    <option value="TEST2"></option> */}
-					{filteredSuggestions
-						? filteredSuggestions.map((item) => {
-								return (
-									<option
-										value={item}
-										key={filteredSuggestions.indexOf(item)}
-									></option>
-								);
-						  })
-						: null}
-				</datalist>
-			</div>
+			<Downshift
+				// onChange={selection =>
+				//   alert(selection ? `You selected ${selection.value}` : 'Selection Cleared')
+				// }
+				itemToString={(item) => (item ? item.value : '')}
+			>
+				{({
+					getInputProps,
+					getItemProps,
+					getLabelProps,
+					getMenuProps,
+					isOpen,
+					inputValue,
+					highlightedIndex,
+					getRootProps,
+				}) => (
+					<div className={classes['form-control']}>
+						<label {...getLabelProps()} className={classes['form__label']}>
+							Enter drug name:
+						</label>
+						<div className={classes['input-control']}>
+						<div {...getRootProps({}, { suppressRefError: true })}>
+							<input {...getInputProps()} className={classes['form__input']} />
+						</div>
+
+						<ul {...getMenuProps()} className={classes['suggestion-list']}>
+							{isOpen && inputValue.length > 1
+								? items
+										.filter(
+											(item) => !inputValue || item.value.startsWith(inputValue)
+										)
+										.map((item, index) => (
+											<li
+												{...getItemProps({
+													key: item.value,
+													index,
+													item,
+													
+												})}
+											>
+												{item.value}
+											</li>
+										))
+								: null}
+						</ul>
+						</div>
+					</div>
+				)}
+			</Downshift>
 			<Button type="submit">Add</Button>
 		</form>
 	);
