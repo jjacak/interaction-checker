@@ -1,24 +1,27 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import Button from '../UI/Button';
 import DrugsListItem from './DrugsListItem';
+import AppContext from '../store/appContext';
 import classes from './AddedDrugs.module.css';
 
-const DUMMY_DRUGS = [{name: 'Paracetamol', id:'d1'}, {name:'Ibuprofen', id:'d2'}]
+
 
 const AddedDrugs = () => {
+	const ctx = useContext(AppContext);
+
 	return (
 		<section className={classes['added-drugs']}>
 			<ul className={classes['drug-list']}>
 
-                {DUMMY_DRUGS.map(drug=> {
+                {ctx.addedDrugs.map(drug=> {
                     return <DrugsListItem drug={drug} key={drug.id}></DrugsListItem>
                 })}
 				
 			</ul>
 			<div className={classes.actions}>
-				<Button>Check for interactions</Button>
+				<Button onClick={ctx.checkInteractions}>Check for interactions</Button>
 				{/* figure out btn classes */}
-				<Button className="button--alt">Clear</Button>
+				<Button className="button--alt" onClick={ctx.removeAll}>Clear</Button>
 			</div>
 		</section>
 	);

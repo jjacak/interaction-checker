@@ -1,0 +1,59 @@
+.backdrop {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100vh;
+	width: 100vw;
+	background-color: rgba(0, 0, 0, 0.2);
+	backdrop-filter: blur(1px);
+	z-index: 10;
+}
+
+.modal {
+	position: absolute;
+	top: 20vh;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 800px;
+	max-width: 85vw;
+	border-radius: 12px;
+	box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+	background-color: #fff;
+	z-index: 20;
+	overflow: hidden;
+}
+.header {
+	text-align: center;
+	padding: 1rem;
+	background-color: Var(--color-grey-100);
+}
+
+.title {
+	font-size: 2rem;
+}
+
+.content {
+	display: flex;
+	flex-direction: column;
+	padding: 2rem;
+	font-size: 1.6rem;
+	line-height: 1.2;
+}
+.modal ul {
+	list-style-type: decimal;
+	list-style-position: inside;
+}
+.modal li {
+	margin-bottom: 2rem;
+}
+
+.modal li:only-child {
+	list-style: none;
+}
+.modal li::marker {
+	font-weight: bold;
+}
+.actions {
+	margin-top: 3rem;
+	align-self: flex-end;
+}
