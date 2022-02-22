@@ -1,88 +1,169 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import Button from '../UI/Button';
 import AppContext from '../store/appContext';
-import Downshift from 'downshift';
+import Modal from '../UI/Modal';
 import classes from './SearchForm.module.css';
 
-let inputSuggestions;
-
 const SearchForm = () => {
+	const [suggestionsList, setSuggestionsList] = useState([]); //full list of suggestions fetched from API
 	const [searchInput, setSearchInput] = useState('');
+	const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+	const [showSuggestions, setShowSuggestion] = useState(false);
+	const [activeSuggestion, setActiveSuggestion] = useState(0);
+	const [error, setError] = useState(null);
 
-	let items;
+	const activeSuggestionRef = useRef();
 
+	const ctx = useContext(AppContext);
+
+	//fetch suggestions list from API
 	useEffect(() => {
 		const fetchSuggestions = async () => {
 			const response = await fetch(
 				'https://rxnav.nlm.nih.gov/REST/displaynames.json'
 			);
 			const data = await response.json();
-			const itemsArray = data.displayTermsList.term;
-			items = itemsArray.map((item) => {
-				return { value: item };
-			});
-			console.log(items);
+			setSuggestionsList(data.displayTermsList.term);
 		};
 		fetchSuggestions();
 	}, []);
 
+	//control state of input, return filtered search suggestions
 	const inputChangeHandler = (e) => {
 		setSearchInput(e.target.value);
-	};
-	return (
-		<form className={classes.form}>
-			<Downshift
-				// onChange={selection =>
-				//   alert(selection ? `You selected ${selection.value}` : 'Selection Cleared')
-				// }
-				itemToString={(item) => (item ? item.value : '')}
-			>
-				{({
-					getInputProps,
-					getItemProps,
-					getLabelProps,
-					getMenuProps,
-					isOpen,
-					inputValue,
-					highlightedIndex,
-					getRootProps,
-				}) => (
-					<div className={classes['form-control']}>
-						<label {...getLabelProps()} className={classes['form__label']}>
-							Enter drug name:
-						</label>
-						<div className={classes['input-control']}>
-						<div {...getRootProps({}, { suppressRefError: true })}>
-							<input {...getInputProps()} className={classes['form__input']} />
-						</div>
+		setShowSuggestion(true);
 
-						<ul {...getMenuProps()} className={classes['suggestion-list']}>
-							{isOpen && inputValue.length > 1
-								? items
-										.filter(
-											(item) => !inputValue || item.value.startsWith(inputValue)
-										)
-										.map((item, index) => (
-											<li
-												{...getItemProps({
-													key: item.value,
-													index,
-													item,
-													
-												})}
-											>
-												{item.value}
-											</li>
-										))
-								: null}
+		if (e.target.value.length > 1) {
+			setFilteredSuggestions(
+				suggestionsList.filter((item) => item.startsWith(e.target.value))
+			);
+		} else {
+			setFilteredSuggestions([]);
+		}
+	};
+
+	const submitHandler = (e) => {
+		e.preventDefault();
+		if (searchInput.trim().length === 0) {
+			setError({
+				title: 'Empty input field',
+				message: 'Please enter a drug name.',
+			});
+			return;
+		}
+		ctx.addDrug(searchInput);
+		setSearchInput('');
+	};
+	//scrolls the suggestions list to make active suggestion visible
+	useEffect(() => {
+		if (!showSuggestions || !activeSuggestionRef.current) {
+			return;
+		}
+		activeSuggestionRef.current.scrollIntoView(false);
+	}, [showSuggestions]);
+
+	//select suggestion with a click
+	const suggestionClickHandler = (e) => {
+		setActiveSuggestion(0);
+		setSearchInput(e.target.innerText);
+		setShowSuggestion(false);
+		setFilteredSuggestions([]);
+	};
+	//select suggestion with arrow keys
+	const suggestionKeydownHandler = (e) => {
+		if (filteredSuggestions.length === 0) {
+			return;
+		}
+		//arrow up
+		if (e.keyCode === 38) {
+			if (activeSuggestion === 0) {
+				return;
+			}
+			setActiveSuggestion((current) => current - 1);
+
+			//arrow down
+		} else if (e.keyCode === 40) {
+			if (activeSuggestion === filteredSuggestions.length - 1) {
+				return;
+			}
+			setActiveSuggestion((current) => current + 1);
+
+			//enter
+		} else if (e.keyCode === 13 && showSuggestions) {
+			setSearchInput(filteredSuggestions[activeSuggestion]);
+			setActiveSuggestion(0);
+			setShowSuggestion(false);
+		}
+	};
+
+	const hideModalHandler = () => {
+		setError(null);
+	};
+	//helper function
+	function sleep(ms) {
+		return new Promise((resolve) => setTimeout(resolve, ms));
+	}
+
+	return (
+		<React.Fragment>
+			{error && (
+				<Modal title={error.title} onClick={hideModalHandler}>
+					{error.message}
+				</Modal>
+			)}
+			<form className={classes.form} onSubmit={submitHandler}>
+				<div className={classes['form-control']}>
+					<label className={classes['form__label']}>Enter drug name:</label>
+					<div className={classes['input-control']}>
+						<input
+							className={classes['form__input']}
+							onChange={inputChangeHandler}
+							onFocus={() => {
+								setShowSuggestion(true);
+							}}
+							onClick={() => {
+								setShowSuggestion(true);
+							}}
+							onBlur={() => {
+								sleep(300).then(() => setShowSuggestion(false));
+							}} //sleep function prevents onblur to trigger before onclick on list item
+							onKeyDown={suggestionKeydownHandler}
+							value={searchInput}
+						/>
+						<ul className={classes['suggestion-list']}>
+							{filteredSuggestions &&
+								showSuggestions &&
+								filteredSuggestions.map((item) => (
+									<li
+										key={filteredSuggestions.indexOf(item)}
+										className={
+											filteredSuggestions.indexOf(item) === activeSuggestion
+												? classes['suggestion-active']
+												: ''
+										}
+										onClick={suggestionClickHandler}
+										ref={
+											filteredSuggestions.indexOf(item) === activeSuggestion
+												? activeSuggestionRef
+												: null
+										}
+									>
+										{item}
+									</li>
+								))}
 						</ul>
-						</div>
 					</div>
-				)}
-			</Downshift>
-			<Button type="submit">Add</Button>
-		</form>
+				</div>
+				<Button type="submit">Add</Button>
+			</form>
+		</React.Fragment>
 	);
 };
 
 export default SearchForm;
+
+// todos:
+// -split into separate components
+// - fix input onblur
+//-aria
+
