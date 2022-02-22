@@ -71,6 +71,10 @@ const SearchForm = () => {
 	};
 	//select suggestion with arrow keys
 	const suggestionKeydownHandler = (e) => {
+		//blur input on esc
+		if (e.keyCode === 27) {
+			e.target.blur();
+		}
 		if (filteredSuggestions.length === 0) {
 			return;
 		}

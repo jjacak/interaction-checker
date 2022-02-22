@@ -83,8 +83,7 @@ const AppContextProvider = (props) => {
 
 	const checkInteractionHandler = (e) => {
 		e.preventDefault();
-        dispatchApp({type:'LOADING'});
-
+        
         if(appState.addedDrugs.length<2){
             dispatchApp({
                 type: 'ERROR',
@@ -95,6 +94,7 @@ const AppContextProvider = (props) => {
             })
             return;
         }
+        dispatchApp({type:'LOADING'});
 
 		async function fetchInteractions() {
 			try {
