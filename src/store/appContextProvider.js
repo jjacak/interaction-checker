@@ -9,7 +9,7 @@ const appReducer = (state, action) => {
 	} else if (action.type === 'ERROR') {
 		return { ...state, modal: action.error };
 	} else if (action.type === 'HIDE_MODAL') {
-		return { ...state, modal: null, interactions: null };
+		return { ...state, modal: null};
 	} else if (action.type === 'REMOVE_DRUG') {
 		const updatedDrugs = state.addedDrugs.filter(
 			(item) => item.id !== action.id
@@ -18,7 +18,7 @@ const appReducer = (state, action) => {
 	} else if (action.type === 'REMOVE_ALL') {
 		return { ...state, addedDrugs: [] };
 	} else if (action.type === 'INTERACTIONS') {
-		return { ...state, interactions: action.interactionsArray };
+		return { ...state, modal:action.interactions};
 	}else if(action.type==='LOADING'){
         return {...state, isLoading:true}
     }else if(action.type==='LOADED'){ 
@@ -30,7 +30,6 @@ const appReducer = (state, action) => {
 const defaultAppState = {
 	addedDrugs: [],
 	modal: null,
-	interactions: null,
     isLoading:false,
  
 };
@@ -63,7 +62,8 @@ const AppContextProvider = (props) => {
 						error: {
 							title: 'Drug not found',
 							message:
-								'Sorry, entered name was not found in database. Perhaps this drug is listed under a different name.',
+								['Sorry, entered name was not found in database. Perhaps this drug is listed under a different name.'],
+                                content:'error',
 						},
 					});
 				}
@@ -72,7 +72,8 @@ const AppContextProvider = (props) => {
 					type: 'ERROR',
 					error: {
 						title: 'Error',
-						message: 'Sorry, failed to connect to database.',
+						message: ['Sorry, failed to connect to database.'],
+                        content:'error',
 					},
 				});
 			}
@@ -89,7 +90,8 @@ const AppContextProvider = (props) => {
                 type: 'ERROR',
                 error: {
                     title: 'No drugs added',
-                    message: 'Please add at least two drug names to the list.',
+                    message: ['Please add at least two drug names to the list.'],
+                    content:'error'
                 },
             })
             return;
@@ -120,13 +122,14 @@ const AppContextProvider = (props) => {
 							(el) => el.interactionPair[0].description
 						);
 				}
-				dispatchApp({ type: 'INTERACTIONS', interactionsArray: interactions });
+				dispatchApp({ type: 'INTERACTIONS', interactions: {title: 'Check result', message: interactions, content:'interactions'} });
 			} catch (error) {
 				dispatchApp({
 					type: 'ERROR',
 					error: {
 						title: 'Error',
-						message: 'Sorry, failed to connect to database.',
+						message: ['Sorry, failed to connect to database.'],
+                        content:'error'
 					},
 				});
 			}
@@ -151,7 +154,6 @@ const AppContextProvider = (props) => {
 	const appContext = {
 		addedDrugs: appState.addedDrugs,
 		modal: appState.modal,
-		interactions: appState.interactions,
         isLoading:appState.isLoading,
 		addDrug: addDrugHandler,
 		removeDrug: removeDrugHandler,

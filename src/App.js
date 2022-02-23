@@ -23,21 +23,16 @@ function App() {
 			</Card>
 			{ctx.modal && (
 				<Modal title={ctx.modal.title} onClick={ctx.hideModal}>
-					{ctx.modal.message}
-				</Modal>
-			)}
-			{ctx.interactions && (
-				<Modal title="Check result" onClick={ctx.hideModal}>
 					<ul>
-						{ctx.interactions.map((item) => {
-							return <li key={ctx.interactions.indexOf(item)}>{item}</li>;
+						{ctx.modal.message.map((item) => {
+							return <li key={ctx.modal.message.indexOf(item)}>{item}</li>;
 						})}
 					</ul>
-					<p>
+					{ctx.modal.content==='interactions' && <p style={{color:'var(--color-grey-700)'}}>
 						<strong>Disclaimer: </strong>It is not the intention of this
 						application to provide specific medical advice. Please consult with
 						a qualified physician for advice about medications.
-					</p>
+					</p>}
 				</Modal>
 			)}
 		</div>
