@@ -168,6 +168,5 @@ export default SearchForm;
 
 // todos:
 // -split into separate components
-// - fix input onblur
 //-aria
 
