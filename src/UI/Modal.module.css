@@ -49,6 +49,7 @@
 
 .modal li:only-child {
 	list-style: none;
+	margin-bottom: 0;
 }
 .modal li::marker {
 	font-weight: bold;

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import Button from '../UI/Button';
 import AppContext from '../store/appContext';
-import Modal from '../UI/Modal';
 import classes from './SearchForm.module.css';
 
 const SearchForm = () => {
@@ -10,7 +9,7 @@ const SearchForm = () => {
 	const [filteredSuggestions, setFilteredSuggestions] = useState([]);
 	const [showSuggestions, setShowSuggestion] = useState(false);
 	const [activeSuggestion, setActiveSuggestion] = useState(0);
-	const [error, setError] = useState(null);
+
 
 	const activeSuggestionRef = useRef();
 
@@ -45,9 +44,9 @@ const SearchForm = () => {
 	const submitHandler = (e) => {
 		e.preventDefault();
 		if (searchInput.trim().length === 0) {
-			setError({
+			ctx.errorHandler({
 				title: 'Empty input field',
-				message: 'Please enter a drug name.',
+				message: ['Please enter a drug name.'],
 			});
 			return;
 		}
@@ -100,9 +99,6 @@ const SearchForm = () => {
 		}
 	};
 
-	const hideModalHandler = () => {
-		setError(null);
-	};
 	//helper function
 	function sleep(ms) {
 		return new Promise((resolve) => setTimeout(resolve, ms));
@@ -110,11 +106,7 @@ const SearchForm = () => {
 
 	return (
 		<React.Fragment>
-			{error && (
-				<Modal title={error.title} onClick={hideModalHandler}>
-					{error.message}
-				</Modal>
-			)}
+			
 			<form className={classes.form} onSubmit={submitHandler}>
 				<div className={classes['form-control']}>
 					<label className={classes['form__label']}>Enter drug name:</label>

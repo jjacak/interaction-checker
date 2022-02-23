@@ -1,4 +1,4 @@
-import React, { useReducer} from 'react';
+import React, { useReducer } from 'react';
 import AppContext from './appContext';
 
 const appReducer = (state, action) => {
@@ -9,7 +9,7 @@ const appReducer = (state, action) => {
 	} else if (action.type === 'ERROR') {
 		return { ...state, modal: action.error };
 	} else if (action.type === 'HIDE_MODAL') {
-		return { ...state, modal: null};
+		return { ...state, modal: null };
 	} else if (action.type === 'REMOVE_DRUG') {
 		const updatedDrugs = state.addedDrugs.filter(
 			(item) => item.id !== action.id
@@ -18,29 +18,43 @@ const appReducer = (state, action) => {
 	} else if (action.type === 'REMOVE_ALL') {
 		return { ...state, addedDrugs: [] };
 	} else if (action.type === 'INTERACTIONS') {
-		return { ...state, modal:action.interactions};
-	}else if(action.type==='LOADING'){
-        return {...state, isLoading:true}
-    }else if(action.type==='LOADED'){ 
-        return {...state, isLoading:false}
-    }else {
-        return {...state}
-    }
+		return { ...state, modal: action.interactions };
+	} else if (action.type === 'LOADING') {
+		return { ...state, isLoading: true };
+	} else if (action.type === 'LOADED') {
+		return { ...state, isLoading: false };
+	} else {
+		return { ...state };
+	}
 };
 const defaultAppState = {
 	addedDrugs: [],
 	modal: null,
-    isLoading:false,
- 
+	isLoading: false,
 };
 
 const AppContextProvider = (props) => {
 	const [appState, dispatchApp] = useReducer(appReducer, defaultAppState);
-  
+
+	const errorHandler = (error) => {
+		dispatchApp({
+			type: 'ERROR',
+			error: error,
+		});
+	};
 
 	const addDrugHandler = (drugName) => {
+
+        if (appState.addedDrugs.length ===10) {
+			errorHandler({
+				title: 'Too many drugs added',
+				message: ['You can only run check for 10 drugs at once.'],
+				content: 'error',
+			});
+			return;
+		}
 		async function fetchRxcui() {
-            dispatchApp({type:'LOADING'})
+			dispatchApp({ type: 'LOADING' });
 			try {
 				const url = 'https://rxnav.nlm.nih.gov/REST/rxcui.json?name=';
 				const response = await fetch(url + drugName);
@@ -57,46 +71,39 @@ const AppContextProvider = (props) => {
 						drug: { name: drugName, rxcui: rxcui },
 					});
 				} else {
-					dispatchApp({
-						type: 'ERROR',
-						error: {
-							title: 'Drug not found',
-							message:
-								['Sorry, entered name was not found in database. Perhaps this drug is listed under a different name.'],
-                                content:'error',
-						},
+					errorHandler({
+						title: 'Drug not found',
+						message: [
+							'Sorry, entered name was not found in database. Perhaps this drug is listed under a different name.',
+						],
+						content: 'error',
 					});
 				}
 			} catch (error) {
-				dispatchApp({
-					type: 'ERROR',
-					error: {
-						title: 'Error',
-						message: ['Sorry, failed to connect to database.'],
-                        content:'error',
-					},
+				errorHandler({
+					title: 'Error',
+					message: ['Sorry, failed to connect to database.'],
+					content: 'error',
 				});
 			}
-            dispatchApp({type:'LOADED'})
+			dispatchApp({ type: 'LOADED' });
 		}
 		fetchRxcui();
 	};
 
 	const checkInteractionHandler = (e) => {
 		e.preventDefault();
+
+		if (appState.addedDrugs.length < 2) {
+			errorHandler({
+				title: 'No drugs added',
+				message: ['Please add at least two drug names to the list.'],
+				content: 'error',
+			});
+			return;
+		}
         
-        if(appState.addedDrugs.length<2){
-            dispatchApp({
-                type: 'ERROR',
-                error: {
-                    title: 'No drugs added',
-                    message: ['Please add at least two drug names to the list.'],
-                    content:'error'
-                },
-            })
-            return;
-        }
-        dispatchApp({type:'LOADING'});
+		dispatchApp({ type: 'LOADING' });
 
 		async function fetchInteractions() {
 			try {
@@ -122,21 +129,24 @@ const AppContextProvider = (props) => {
 							(el) => el.interactionPair[0].description
 						);
 				}
-				dispatchApp({ type: 'INTERACTIONS', interactions: {title: 'Check result', message: interactions, content:'interactions'} });
-			} catch (error) {
 				dispatchApp({
-					type: 'ERROR',
-					error: {
-						title: 'Error',
-						message: ['Sorry, failed to connect to database.'],
-                        content:'error'
+					type: 'INTERACTIONS',
+					interactions: {
+						title: 'Check result',
+						message: interactions,
+						content: 'interactions',
 					},
 				});
+			} catch (error) {
+				errorHandler({
+					title: 'Error',
+					message: ['Sorry, failed to connect to database.'],
+					content: 'error',
+				});
 			}
-            dispatchApp({type:'LOADED'});
+			dispatchApp({ type: 'LOADED' });
 		}
 		fetchInteractions();
-        
 	};
 
 	const removeDrugHandler = (id) => {
@@ -154,12 +164,13 @@ const AppContextProvider = (props) => {
 	const appContext = {
 		addedDrugs: appState.addedDrugs,
 		modal: appState.modal,
-        isLoading:appState.isLoading,
+		isLoading: appState.isLoading,
 		addDrug: addDrugHandler,
 		removeDrug: removeDrugHandler,
 		hideModal: hideModalHandler,
 		removeAll: removeAllHandler,
 		checkInteractions: checkInteractionHandler,
+        errorHandler:errorHandler,
 	};
 
 	return (

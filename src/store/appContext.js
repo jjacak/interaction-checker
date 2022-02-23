@@ -8,7 +8,8 @@ const AppContext = React.createContext({
     removeDrug:()=>{},
     hideModal:()=>{},
     removeAll:()=>{},
-    checkInteractions:()=>{}
+    checkInteractions:()=>{},
+    errorHandler:()=>{},
 
 });
 

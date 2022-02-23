@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext} from 'react';
 import classes from './App.module.css';
 import Card from './UI/Card';
 import Header from './components/Header';
@@ -28,7 +28,7 @@ function App() {
 							return <li key={ctx.modal.message.indexOf(item)}>{item}</li>;
 						})}
 					</ul>
-					{ctx.modal.content==='interactions' && <p style={{color:'var(--color-grey-700)'}}>
+					{ctx.modal.content==='interactions' && <p style={{color:'var(--color-grey-700)', marginTop:'1rem'}}>
 						<strong>Disclaimer: </strong>It is not the intention of this
 						application to provide specific medical advice. Please consult with
 						a qualified physician for advice about medications.

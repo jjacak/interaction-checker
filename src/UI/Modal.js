@@ -1,7 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import Button from './Button';
-import Card from './Card';
 import classes from './Modal.module.css';
 
 const Backdrop = (props) => {
