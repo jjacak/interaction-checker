@@ -8,6 +8,7 @@ import Modal from './UI/Modal';
 import AppContext from './store/appContext';
 import LoadingIcons from 'react-loading-icons';
 
+
 function App() {
 	const ctx = useContext(AppContext);
 
