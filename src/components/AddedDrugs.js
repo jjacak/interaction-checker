@@ -20,7 +20,6 @@ const AddedDrugs = () => {
 			</ul>
 			<div className={classes.actions}>
 				<Button onClick={ctx.checkInteractions}>Check for interactions</Button>
-				{/* figure out btn classes */}
 				<Button className="button--alt" onClick={ctx.removeAll}>Clear</Button>
 			</div>
 		</section>

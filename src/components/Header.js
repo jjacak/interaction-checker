@@ -4,7 +4,7 @@ import classes from './Header.module.css';
 const Header = ()=> {
 
     return <header className={classes.header}>
-        <h1 className={classes.title}>Drug Interaction Checker</h1>
+        <h1 className={classes.title}>Drugs Interaction Checker</h1>
     </header>
 };
 
