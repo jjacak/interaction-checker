@@ -17,14 +17,19 @@ const SearchForm = () => {
 
 	//fetch suggestions list from API
 	useEffect(() => {
+		const abortController = new AbortController();
 		const fetchSuggestions = async () => {
 			const response = await fetch(
-				'https://rxnav.nlm.nih.gov/REST/displaynames.json'
+				'https://rxnav.nlm.nih.gov/REST/displaynames.json',{ signal: abortController.signal }
 			);
 			const data = await response.json();
 			setSuggestionsList(data.displayTermsList.term);
 		};
 		fetchSuggestions();
+
+		return () => {
+			abortController.abort();
+		  };
 	}, []);
 
 	//control state of input, return filtered search suggestions
